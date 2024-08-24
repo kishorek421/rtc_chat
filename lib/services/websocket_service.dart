@@ -1,5 +1,7 @@
+// websocket_service.dart
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:web_socket_channel/io.dart';
@@ -13,6 +15,8 @@ class WebSocketService extends GetxService {
   final String url = 'ws://106.51.106.43';
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
+  var currentUserId = "";
+
   factory WebSocketService() {
     return _instance;
   }
@@ -22,6 +26,9 @@ class WebSocketService extends GetxService {
   @override
   void onInit() {
     super.onInit();
+    secureStorage.read(key: "userId").then((value) {
+      currentUserId = value ?? "";
+    });
     connect();
   }
 
@@ -53,6 +60,59 @@ class WebSocketService extends GetxService {
     sendStatusUpdate('online');
   }
 
+  // Send notification when a user is clicked
+  void sendNotification(String toUserId) {
+    _channel?.sink.add(json.encode({
+      'type': 'sendNotification',
+      'toUser': toUserId,
+      'fromUser': currentUserId,
+    }));
+  }
+
+  // Listen for incoming notifications
+  void listenForNotifications(BuildContext context) {
+    _channel?.stream.listen((message) {
+      final data = json.decode(message);
+      if (data['type'] == 'receiveNotification' && data['toUser'] == currentUserId) {
+        _showAcceptOfferDialog(context, data['fromUser']);
+      }
+    });
+  }
+
+  void _showAcceptOfferDialog(BuildContext context, String fromUser) {
+    // Show dialog to accept offer
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Accept Offer'),
+        content: Text('$fromUser wants to chat. Accept the offer?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Decline'),
+          ),
+          TextButton(
+            onPressed: () {
+              // Accept the offer
+              _acceptOffer(fromUser);
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/chatPage', arguments: fromUser);
+            },
+            child: Text('Accept'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _acceptOffer(String fromUser) {
+    _channel?.sink.add(json.encode({
+      'action': 'acceptOffer',
+      'fromUser': fromUser,
+      'toUser': currentUserId,
+    }));
+  }
+
   // Register a callback to handle incoming messages
   void onMessage(void Function(Map<String, dynamic>) callback) {
     onMessageCallback = callback;
@@ -69,8 +129,8 @@ class WebSocketService extends GetxService {
 
   // Update user status (online/offline)
   void sendStatusUpdate(String status) async {
-    // Assume userId is stored securely and retrieved when needed
-    final userId = await secureStorage.read(key: "userId"); // Replace with actual retrieval
+    final userId = await secureStorage.read(key: "userId");
+    log("userId -> $userId");
     send({
       'type': 'status_update',
       'userId': userId,

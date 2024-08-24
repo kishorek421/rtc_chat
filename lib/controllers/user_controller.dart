@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:rtc/services/websocket_service.dart';
@@ -25,6 +27,7 @@ class UserController extends GetxController {
 
   Future<String> fetchCurrentUserDetails() async {
     currentUserId = (await secureStorage.read(key: "userId")) ?? "";
+    log("currentUserId -> $currentUserId");
     _initializeWebSocket(currentUserId);
     var mobileNumber = (await secureStorage.read(key: 'mobile')) ?? "";
     currentUserMobileNumber.value = mobileNumber;

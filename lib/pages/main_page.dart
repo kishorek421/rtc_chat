@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:rtc/pages/add_user_page.dart';
 import 'package:rtc/pages/chat_page.dart';
 import 'package:rtc/controllers/user_controller.dart';
+import 'package:rtc/services/websocket_service.dart';
 
 class MainPage extends StatelessWidget {
   final UserController userController = Get.put(UserController());
@@ -37,6 +38,7 @@ class MainPage extends StatelessWidget {
                     title: Text(user['name']),
                     subtitle: Text(user['mobile']),
                     onTap: () {
+                      WebSocketService().sendNotification(user['userId']?.toString() ?? "");
                       Get.to(() => ChatPage(targetUserId: user['userId']?.toString() ?? ""));
                     },
                   );

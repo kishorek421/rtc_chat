@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -7,8 +9,8 @@ import 'package:rtc/services/websocket_service.dart';
 class ChatController extends GetxController {
   RTCPeerConnection? peerConnection;
   RTCDataChannel? dataChannel;
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  // FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  //     FlutterLocalNotificationsPlugin();
   final WebSocketService webSocketService =
       WebSocketService(); // Initialize WebSocket service
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
@@ -24,7 +26,7 @@ class ChatController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _initializeNotifications();
+    // _initializeNotifications();
   }
 
   Future<String> fetchCurrentUserDetails() async {
@@ -33,13 +35,13 @@ class ChatController extends GetxController {
     return currentUserId;
   }
 
-  void _initializeNotifications() {
-    const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-    const initializationSettings =
-        InitializationSettings(android: androidSettings);
-    flutterLocalNotificationsPlugin.initialize(initializationSettings);
-  }
+  // void _initializeNotifications() {
+  //   const androidSettings =
+  //       AndroidInitializationSettings('@mipmap/ic_launcher');
+  //   const initializationSettings =
+  //       InitializationSettings(android: androidSettings);
+  //   flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  // }
 
   // Initialize the WebSocket connection
   void _initializeWebSocket(String currentUserId) {
@@ -89,8 +91,8 @@ class ChatController extends GetxController {
 
     if (!isCallConnected.value && isCallActive.value) {
       isCallActive.value = false;
-      _showNotification(targetUserId, 'Missed call',
-          'You missed a connection from $targetUserId.');
+      // _showNotification(targetUserId, 'Missed call',
+      //     'You missed a connection from $targetUserId.');
 
       // Update signaling server with the missed call status
       webSocketService.send({
@@ -136,8 +138,8 @@ class ChatController extends GetxController {
   Future<void> createConnection(
       String currentUserId, String targetUserId) async {
     isCallActive.value = true;
-    _showNotification(
-        targetUserId, 'Incoming call', 'You have a connection request.');
+    // _showNotification(
+    //     targetUserId, 'Incoming call', 'You have a connection request.');
 
     final configuration = {
       'iceServers': [
@@ -186,24 +188,24 @@ class ChatController extends GetxController {
     dataChannel!.send(RTCDataChannelMessage(message));
   }
 
-  Future<void> _showNotification(
-      String title, String body, String payload) async {
-    const androidDetails = AndroidNotificationDetails(
-      'call_channel',
-      'Call Notifications',
-      channelDescription: 'Notifications for incoming calls',
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-    const notificationDetails = NotificationDetails(android: androidDetails);
-    await flutterLocalNotificationsPlugin.show(
-      0,
-      title,
-      body,
-      notificationDetails,
-      payload: payload,
-    );
-  }
+  // Future<void> _showNotification(
+  //     String title, String body, String payload) async {
+  //   const androidDetails = AndroidNotificationDetails(
+  //     'call_channel',
+  //     'Call Notifications',
+  //     channelDescription: 'Notifications for incoming calls',
+  //     importance: Importance.max,
+  //     priority: Priority.high,
+  //   );
+  //   const notificationDetails = NotificationDetails(android: androidDetails);
+  //   await flutterLocalNotificationsPlugin.show(
+  //     0,
+  //     title,
+  //     body,
+  //     notificationDetails,
+  //     payload: payload,
+  //   );
+  // }
 
   // Method to cancel the ongoing call
   void cancelCall(String currentUserId, String targetUserId) async {
@@ -219,7 +221,7 @@ class ChatController extends GetxController {
       Get.back();
       Get.snackbar('Call Canceled', 'You have canceled the call.');
     } catch (e) {
-      print('Error canceling call: $e');
+      log('Error canceling call: $e');
       Get.snackbar('Error', 'Failed to cancel the call.');
     }
   }
