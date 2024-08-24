@@ -17,6 +17,8 @@ class WebSocketService extends GetxService {
 
   var currentUserId = "";
 
+  BuildContext? context;
+
   factory WebSocketService() {
     return _instance;
   }
@@ -32,6 +34,10 @@ class WebSocketService extends GetxService {
     connect();
   }
 
+  void setContext(BuildContext buildContext) {
+    context = buildContext;
+  }
+
   // Connect to the WebSocket server
   void connect() {
     if (isConnected) return; // Prevent reconnecting if already connected
@@ -42,9 +48,16 @@ class WebSocketService extends GetxService {
     // Listen for incoming messages
     _channel?.stream.listen((message) {
       try {
-        final decodedMessage = jsonDecode(message);
+        final data = jsonDecode(message);
         if (onMessageCallback != null) {
-          onMessageCallback!(decodedMessage);
+          onMessageCallback!(data);
+        } else {
+          if (context != null) {
+            if (data['type'] == 'receiveNotification' &&
+                data['toUser'] == currentUserId) {
+              _showAcceptOfferDialog(context!, data['fromUser']);
+            }
+          }
         }
       } catch (e) {
         print('Error decoding WebSocket message: $e');
@@ -62,20 +75,10 @@ class WebSocketService extends GetxService {
 
   // Send notification when a user is clicked
   void sendNotification(String toUserId) {
-    _channel?.sink.add(json.encode({
+    send({
       'type': 'sendNotification',
       'toUser': toUserId,
       'fromUser': currentUserId,
-    }));
-  }
-
-  // Listen for incoming notifications
-  void listenForNotifications(BuildContext context) {
-    _channel?.stream.listen((message) {
-      final data = json.decode(message);
-      if (data['type'] == 'receiveNotification' && data['toUser'] == currentUserId) {
-        _showAcceptOfferDialog(context, data['fromUser']);
-      }
     });
   }
 
