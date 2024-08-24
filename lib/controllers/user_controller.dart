@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:rtc/pages/accept_notification_page.dart';
 import 'package:rtc/services/websocket_service.dart';
 import 'package:rtc/utils/db_helper.dart';
 
@@ -17,6 +18,8 @@ class UserController extends GetxController {
   final WebSocketService webSocketService = WebSocketService();
 
   var currentUserId = "";
+
+  var notificationReceived = false.obs;
 
   @override
   void onInit() {
@@ -40,9 +43,15 @@ class UserController extends GetxController {
 
     // Listen to WebSocket messages
     webSocketService.onMessage((message) async {
+      log("message $message");
       if (message['type'] == 'target_user_details_added' && message['success']) {
         addUser(message['details']['targetUserId'], message['details']['targetUserMobile'],
             message['details']['targetUserName']);
+      }
+
+      if (message['type'] == 'receiveNotification' &&
+          message['toUser'] == currentUserId) {
+        Get.to(() => const AcceptNotificationPage());
       }
     });
   }

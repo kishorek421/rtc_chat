@@ -51,13 +51,6 @@ class WebSocketService extends GetxService {
         final data = jsonDecode(message);
         if (onMessageCallback != null) {
           onMessageCallback!(data);
-        } else {
-          if (context != null) {
-            if (data['type'] == 'receiveNotification' &&
-                data['toUser'] == currentUserId) {
-              _showAcceptOfferDialog(context!, data['fromUser']);
-            }
-          }
         }
       } catch (e) {
         print('Error decoding WebSocket message: $e');
@@ -80,32 +73,6 @@ class WebSocketService extends GetxService {
       'toUser': toUserId,
       'fromUser': currentUserId,
     });
-  }
-
-  void _showAcceptOfferDialog(BuildContext context, String fromUser) {
-    // Show dialog to accept offer
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Accept Offer'),
-        content: Text('$fromUser wants to chat. Accept the offer?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Decline'),
-          ),
-          TextButton(
-            onPressed: () {
-              // Accept the offer
-              _acceptOffer(fromUser);
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/chatPage', arguments: fromUser);
-            },
-            child: Text('Accept'),
-          ),
-        ],
-      ),
-    );
   }
 
   void _acceptOffer(String fromUser) {
