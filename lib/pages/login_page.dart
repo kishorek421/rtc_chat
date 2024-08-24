@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:rtc/controllers/login_controller.dart';
 import 'package:rtc/enums/login_status.dart';
@@ -21,40 +22,31 @@ class LoginPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Login'),
       ),
-      body: Obx(() {
-        return loginController.loginStatus.value == LoginStatus.checking
-            ? const SizedBox(
-                height: double.infinity,
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              )
-            : Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: mobileController,
-                      decoration:
-                          const InputDecoration(labelText: 'Mobile Number'),
-                    ),
-                    TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Name'),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        loginController.login(
-                            mobileController.text, nameController.text);
-                        Get.offAllNamed('/home');
-                      },
-                      child: const Text('Login'),
-                    ),
-                  ],
-                ),
-              );
-      }),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: mobileController,
+              decoration: const InputDecoration(labelText: 'Mobile Number'),
+            ),
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Name'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                if (loginController.webSocketService.isConnected) {
+                  await loginController.login(
+                      mobileController.text, nameController.text);
+                }
+              },
+              child: const Text('Login'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

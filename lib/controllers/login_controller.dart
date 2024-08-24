@@ -16,17 +16,7 @@ class LoginController extends GetxController {
   void onInit() {
     super.onInit();
     webSocketService = WebSocketService('ws://106.51.106.43');
-  }
-
-  void checkAuthentication() async {
-    var authStatus = await secureStorage.read(key: 'isAuthenticated');
-    if (authStatus == 'true') {
-      loginStatus.value = LoginStatus.authenticated;
-      Get.offAllNamed('/home');  // Navigate to home page if authenticated
-    } else {
-      loginStatus.value = LoginStatus.notAuthenticated;
-      Get.offAllNamed('/login'); // Navigate to login page if not authenticated
-    }
+    webSocketService.connect();
   }
 
   Future<void> login(String mobile, String name) async {
@@ -34,31 +24,41 @@ class LoginController extends GetxController {
     if (user == null) {
       await dbHelper.addUser(mobile, name);
     }
-    await secureStorage.write(key: 'isAuthenticated', value: 'true');
-    await secureStorage.write(key: 'mobile', value: mobile);
 
-    webSocketService.send({
-      'type': 'register',
-      'mobile': mobile,
-    });
-    webSocketService.messages.listen((message) {
-      var data = jsonDecode(message);
-      if (data['type'] == 'register' && data['success']) {
+    // Send registration message only if WebSocket is connected
+    if (webSocketService.isConnected) {
+      webSocketService.send({
+        'type': 'register',
+        'mobile': mobile,
+      });
+    } else {
+      print('WebSocket is not connected');
+    }
+
+    webSocketService.onMessage((message) async {
+      if (message['type'] == 'registered' && message['success']) {
+        var secureStorage = const FlutterSecureStorage();
+        await secureStorage.write(key: 'userId', value: message['userId']);
+        await secureStorage.write(key: 'isAuthenticated', value: 'true');
+        await secureStorage.write(key: 'mobile', value: mobile);
         loginStatus.value = LoginStatus.authenticated;
+        Get.offAllNamed('/home');
       }
     });
   }
 
+
   Future<void> logout() async {
     await secureStorage.delete(key: 'isAuthenticated');
     await secureStorage.delete(key: 'mobile');
+    await secureStorage.delete(key: 'userId');
     loginStatus.value = LoginStatus.notAuthenticated;
     // todo if user is not setting offline automatically, call a ws to update the status
   }
 
   @override
   void onClose() {
-    webSocketService.close();
+    webSocketService.disconnect();
     super.onClose();
   }
 }

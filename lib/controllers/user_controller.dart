@@ -31,18 +31,8 @@ class UserController extends GetxController {
     users.assignAll(result);
   }
 
-  void fetchConnections(int userId) async {
-    var result = await dbHelper.getConnections(userId);
-    connections.assignAll(result);
-  }
-
   Future<void> addUser(String mobile, String name) async {
     await dbHelper.addUser(mobile, name);
     fetchUsers();
-  }
-
-  Future<void> addConnection(int userId, String targetMobile, String targetName) async {
-    await dbHelper.addConnection(userId, targetMobile, targetName);
-    fetchConnections(userId);
   }
 }

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rtc/controllers/login_controller.dart';
+import 'package:rtc/controllers/splash_controller.dart';
 
-class SplashPage extends StatelessWidget {
-  final LoginController loginController = Get.put(LoginController());
-
-  SplashPage({super.key});
+class SplashPage extends GetView<SplashController> {
+  SplashPage({super.key}) {
+    Get.put(SplashController());
+    // Perform authentication check when splash screen is shown
+    controller.checkAuthentication();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Perform authentication check when splash screen is shown
-    loginController.checkAuthentication();
-
     return const Scaffold(
       body: Center(
         child:
