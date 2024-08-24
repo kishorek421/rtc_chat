@@ -61,6 +61,7 @@ class UserController extends GetxController {
 
       if (message['type'] == 'callAccepted' &&
           message['fromUser'] == currentUserId) {
+
         Get.to(
             () => ChatPage(targetUserId: message['toUser']?.toString() ?? ""));
       }

@@ -62,8 +62,8 @@ class ChatController extends GetxController {
     // Update signaling server with the call connected status
     webSocketService.send({
       'type': 'call_connected',
-      'from': currentUserId,
-      'to': targetUserId,
+      'currentUserId': currentUserId,
+      'targetUserId': targetUserId,
       'connectedTime': connectedTime.toIso8601String(),
     });
   }
@@ -75,8 +75,8 @@ class ChatController extends GetxController {
     // Update signaling server with the call disconnected status
     webSocketService.send({
       'type': 'call_disconnected',
-      'from': currentUserId,
-      'to': targetUserId,
+      'currentUserId': currentUserId,
+      'targetUserId': targetUserId,
       'disconnectedTime': disconnectedTime.toIso8601String(),
     });
 
@@ -97,8 +97,8 @@ class ChatController extends GetxController {
       // Update signaling server with the missed call status
       webSocketService.send({
         'type': 'missed_call',
-        'from': currentUserId,
-        'to': targetUserId,
+        'currentUserId': currentUserId,
+        'targetUserId': targetUserId,
       });
     }
   }
@@ -213,8 +213,8 @@ class ChatController extends GetxController {
       // Notify the signaling server to cancel the call
       webSocketService.send({
         'type': 'cancel',
-        'from': currentUserId,
-        'to': targetUserId,
+        'currentUserId': currentUserId,
+        'targetUserId': targetUserId,
       });
 
       // Handle any UI updates here, e.g., navigating back to the main page
@@ -241,8 +241,8 @@ class ChatController extends GetxController {
   void _sendOffer(String currentUserId, String targetUserId, String sdp) {
     webSocketService.send({
       'type': 'offer',
-      'from': currentUserId,
-      'to': targetUserId,
+      'currentUserId': currentUserId,
+      'targetUserId': targetUserId,
       'sdp': sdp,
     });
   }
@@ -251,8 +251,8 @@ class ChatController extends GetxController {
   void _sendAnswer(String currentUserId, String targetUserId, String sdp) {
     webSocketService.send({
       'type': 'answer',
-      'from': currentUserId,
-      'to': targetUserId,
+      'currentUserId': currentUserId,
+      'targetUserId': targetUserId,
       'sdp': sdp,
     });
   }
@@ -262,8 +262,8 @@ class ChatController extends GetxController {
       String currentUserId, String targetUserId, RTCIceCandidate candidate) {
     webSocketService.send({
       'type': 'candidate',
-      'from': currentUserId,
-      'to': targetUserId,
+      'currentUserId': currentUserId,
+      'targetUserId': targetUserId,
       'candidate': candidate.toMap(),
     });
   }

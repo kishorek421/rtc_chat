@@ -76,11 +76,11 @@ class WebSocketService extends GetxService {
   }
 
   void acceptOffer(String fromUser) {
-    _channel?.sink.add(json.encode({
-      'action': 'callAccepted',
+    send({
+      'type': 'callAccepted',
       'fromUser': fromUser,
       'toUser': currentUserId,
-    }));
+    });
   }
 
   // Register a callback to handle incoming messages
