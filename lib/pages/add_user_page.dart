@@ -7,11 +7,13 @@ class AddUserPage extends StatelessWidget {
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
 
+  AddUserPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add User'),
+        title: const Text('Add User'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -19,19 +21,25 @@ class AddUserPage extends StatelessWidget {
           children: [
             TextField(
               controller: mobileController,
-              decoration: InputDecoration(labelText: 'Target Mobile Number'),
+              decoration: const InputDecoration(labelText: 'Target Mobile Number'),
             ),
             TextField(
               controller: nameController,
-              decoration: InputDecoration(labelText: 'Target Name'),
+              decoration: const InputDecoration(labelText: 'Target Name'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                userController.addUser(mobileController.text, nameController.text);
+                // userController.addUser(mobileController.text, nameController.text);
+                userController.webSocketService.send({
+                  'type': 'add_target_user_details',
+                  'currentUserId': userController.currentUserId,
+                  'targetUserName': nameController.text,
+                  'targetUserMobile': mobileController.text,
+                });
                 Get.back();
               },
-              child: Text('Add User'),
+              child: const Text('Add User'),
             ),
           ],
         ),

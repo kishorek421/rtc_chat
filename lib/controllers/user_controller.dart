@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:rtc/services/websocket_service.dart';
 import 'package:rtc/utils/db_helper.dart';
 
 class UserController extends GetxController {
@@ -11,6 +12,9 @@ class UserController extends GetxController {
 
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
+  final WebSocketService webSocketService = WebSocketService();
+
+  var currentUserId = "";
 
   @override
   void onInit() {
@@ -20,9 +24,24 @@ class UserController extends GetxController {
   }
 
   Future<String> fetchCurrentUserDetails() async {
+    currentUserId = (await secureStorage.read(key: "userId")) ?? "";
+    _initializeWebSocket(currentUserId);
     var mobileNumber = (await secureStorage.read(key: 'mobile')) ?? "";
     currentUserMobileNumber.value = mobileNumber;
     return mobileNumber;
+  }
+
+  // Initialize the WebSocket connection
+  void _initializeWebSocket(String currentUserId) {
+    webSocketService.connect(); // Connect to WebSocket server
+
+    // Listen to WebSocket messages
+    webSocketService.onMessage((message) async {
+      if (message['type'] == 'user_added' && message['success']) {
+        addUser(message['userId'], message['userMobileNumber'],
+            message['userName']);
+      }
+    });
   }
 
   void fetchUsers() async {
@@ -31,8 +50,8 @@ class UserController extends GetxController {
     users.assignAll(result);
   }
 
-  Future<void> addUser(String mobile, String name) async {
-    await dbHelper.addUser(mobile, name);
+  Future<void> addUser(String userId, String mobile, String name) async {
+    await dbHelper.addUser(userId, mobile, name);
     fetchUsers();
   }
 }

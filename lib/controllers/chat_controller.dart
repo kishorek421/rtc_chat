@@ -10,13 +10,16 @@ class ChatController extends GetxController {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   final WebSocketService webSocketService =
-      WebSocketService('ws://106.51.106.43'); // Initialize WebSocket service
+      WebSocketService(); // Initialize WebSocket service
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   var sdp = ''.obs;
   var iceCandidates = <RTCIceCandidate>[].obs;
   var isCallActive = false.obs;
   var currentUserId = "";
+  var targetUserId = "";
+
+  var isCallConnected = false.obs;
 
   @override
   void onInit() {
@@ -48,6 +51,56 @@ class ChatController extends GetxController {
     });
   }
 
+
+  // This method is invoked when the user picks up the call
+  void onCallConnected(String currentUserId, String targetUserId) async {
+    isCallConnected.value = true;
+    final DateTime connectedTime = DateTime.now();
+
+    // Update signaling server with the call connected status
+    webSocketService.send({
+      'type': 'call_connected',
+      'from': currentUserId,
+      'to': targetUserId,
+      'connectedTime': connectedTime.toIso8601String(),
+    });
+  }
+
+  // This method is invoked when the call is disconnected
+  void onCallDisconnected(String currentUserId, String targetUserId) async {
+    final DateTime disconnectedTime = DateTime.now();
+
+    // Update signaling server with the call disconnected status
+    webSocketService.send({
+      'type': 'call_disconnected',
+      'from': currentUserId,
+      'to': targetUserId,
+      'disconnectedTime': disconnectedTime.toIso8601String(),
+    });
+
+    // Handle any UI updates here, e.g., navigating back to the main page
+    Get.back();
+    Get.snackbar('Call Ended', 'The call has been disconnected.');
+  }
+
+  // This method handles call timeout, marking the call as missed
+  void _handleTimeout(String targetUserId) async {
+    await Future.delayed(const Duration(seconds: 20));
+
+    if (!isCallConnected.value && isCallActive.value) {
+      isCallActive.value = false;
+      _showNotification(targetUserId, 'Missed call',
+          'You missed a connection from $targetUserId.');
+
+      // Update signaling server with the missed call status
+      webSocketService.send({
+        'type': 'missed_call',
+        'from': currentUserId,
+        'to': targetUserId,
+      });
+    }
+  }
+
   // Handle incoming WebSocket messages
   void _handleWebSocketMessage(
       String currentUserId, Map<String, dynamic> message) {
@@ -63,6 +116,18 @@ class ChatController extends GetxController {
         break;
       case 'cancel':
         _onCallCanceled(message);
+        break;
+      case 'missed_call':
+      // Handle missed call
+      _handleTimeout(targetUserId);
+        break;
+      case 'call_connected':
+      // Handle call connected
+      onCallConnected(currentUserId, targetUserId);
+        break;
+      case 'call_disconnected':
+      // Handle call disconnected
+      onCallDisconnected(currentUserId, targetUserId);
         break;
       // Add more cases as needed
     }
@@ -106,16 +171,6 @@ class ChatController extends GetxController {
     _sendOffer(currentUserId, targetUserId, offer.sdp!);
 
     _handleTimeout(targetUserId);
-  }
-
-  void _handleTimeout(String targetUserId) async {
-    await Future.delayed(const Duration(seconds: 20));
-
-    if (isCallActive.value) {
-      isCallActive.value = false;
-      _showNotification(targetUserId, 'Missed call',
-          'You missed a connection from $targetUserId.');
-    }
   }
 
   Future<void> setRemoteDescription(String sdp) async {
@@ -169,8 +224,12 @@ class ChatController extends GetxController {
     }
   }
 
+// Override the onClose method to handle disconnection
   @override
   void onClose() {
+    if (isCallActive.value && isCallConnected.value) {
+      onCallDisconnected(currentUserId, targetUserId);
+    }
     peerConnection?.close();
     webSocketService.disconnect(); // Close WebSocket connection
     super.onClose();

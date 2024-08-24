@@ -19,6 +19,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
+    chatController.targetUserId = widget.targetUserId;
     // Initiate the connection when the screen is opened
     chatController.fetchCurrentUserDetails().then((value) {
       log("currentUserId => $value");
@@ -32,15 +33,19 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         title: Obx(() {
           return Text(chatController.isCallActive.value
-              ? 'Chat with ${widget.targetUserId}'
-              : 'Calling ${widget.targetUserId}...');
+              ? chatController.isCallConnected.value
+                  ? 'Chat with ${widget.targetUserId}'
+                  : 'Calling ${widget.targetUserId}...'
+              : 'Disconnected');
         }),
       ),
       body: Obx(() {
         if (!chatController.isCallActive.value) {
           return _buildCallingUI();
-        } else {
+        } else if (chatController.isCallConnected.value) {
           return _buildChatUI();
+        } else {
+          return _buildDisconnectedUI();
         }
       }),
     );
@@ -61,6 +66,23 @@ class _ChatPageState extends State<ChatPage> {
               Get.back();
             },
             child: const Text('Cancel Call'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDisconnectedUI() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('The call has been disconnected.'),
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+            },
+            child: const Text('Back to Main Page'),
           ),
         ],
       ),

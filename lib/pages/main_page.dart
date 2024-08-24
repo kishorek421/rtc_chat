@@ -37,7 +37,7 @@ class MainPage extends StatelessWidget {
                     title: Text(user['name']),
                     subtitle: Text(user['mobile']),
                     onTap: () {
-                      Get.to(() => ChatPage(targetUserId: user['id']?.toString() ?? ""));
+                      Get.to(() => ChatPage(targetUserId: user['userId']?.toString() ?? ""));
                     },
                   );
                 },

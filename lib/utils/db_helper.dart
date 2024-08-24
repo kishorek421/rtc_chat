@@ -23,11 +23,11 @@ class DBHelper {
     );
   }
 
-  Future<int> addUser(String mobile, String name) async {
+  Future<int> addUser(String userId,String mobile, String name) async {
     final dbClient = await db;
     var existingUser = await getUserByMobile(mobile);
     if (existingUser != null) return 0;
-    return await dbClient.insert('users', {'mobile': mobile, 'name': name});
+    return await dbClient.insert('users', {'userId': userId, 'mobile': mobile, 'name': name});
   }
 
   Future<List<Map<String, dynamic>>> getUsers(String currentMobile) async {

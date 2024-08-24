@@ -15,16 +15,11 @@ class LoginController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    webSocketService = WebSocketService('ws://106.51.106.43');
+    webSocketService = WebSocketService();
     webSocketService.connect();
   }
 
   Future<void> login(String mobile, String name) async {
-    var user = await dbHelper.getUserByMobile(mobile);
-    if (user == null) {
-      await dbHelper.addUser(mobile, name);
-    }
-
     // Send registration message only if WebSocket is connected
     if (webSocketService.isConnected) {
       webSocketService.send({
@@ -41,12 +36,16 @@ class LoginController extends GetxController {
         await secureStorage.write(key: 'userId', value: message['userId']);
         await secureStorage.write(key: 'isAuthenticated', value: 'true');
         await secureStorage.write(key: 'mobile', value: mobile);
+
+        var user = await dbHelper.getUserByMobile(mobile);
+        if (user == null) {
+          await dbHelper.addUser(message['userId'], mobile, name);
+        }
         loginStatus.value = LoginStatus.authenticated;
         Get.offAllNamed('/home');
       }
     });
   }
-
 
   Future<void> logout() async {
     await secureStorage.delete(key: 'isAuthenticated');
