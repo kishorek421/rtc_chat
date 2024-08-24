@@ -27,6 +27,7 @@ class _MyAppState extends State<MyApp>  with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    webSocketService.disconnect();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

@@ -37,9 +37,9 @@ class UserController extends GetxController {
 
     // Listen to WebSocket messages
     webSocketService.onMessage((message) async {
-      if (message['type'] == 'user_added' && message['success']) {
-        addUser(message['userId'], message['userMobileNumber'],
-            message['userName']);
+      if (message['type'] == 'target_user_details_added' && message['success']) {
+        addUser(message['details']['targetUserId'], message['details']['targetUserMobile'],
+            message['details']['targetUserName']);
       }
     });
   }

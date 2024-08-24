@@ -57,7 +57,7 @@ class LoginController extends GetxController {
 
   @override
   void onClose() {
-    webSocketService.disconnect();
+    // webSocketService.disconnect();
     super.onClose();
   }
 }

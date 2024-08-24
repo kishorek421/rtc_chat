@@ -231,7 +231,7 @@ class ChatController extends GetxController {
       onCallDisconnected(currentUserId, targetUserId);
     }
     peerConnection?.close();
-    webSocketService.disconnect(); // Close WebSocket connection
+    // webSocketService.disconnect(); // Close WebSocket connection
     super.onClose();
   }
 

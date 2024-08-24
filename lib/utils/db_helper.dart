@@ -17,7 +17,7 @@ class DBHelper {
       version: 1,
       onCreate: (db, version) async {
         await db.execute(
-          'CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, mobile TEXT, name TEXT)',
+          'CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, userId TEXT, mobile TEXT, name TEXT)',
         );
       },
     );
