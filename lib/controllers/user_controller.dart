@@ -44,14 +44,17 @@ class UserController extends GetxController {
     // Listen to WebSocket messages
     webSocketService.onMessage((message) async {
       log("message $message");
-      if (message['type'] == 'target_user_details_added' && message['success']) {
-        addUser(message['details']['targetUserId'], message['details']['targetUserMobile'],
+      if (message['type'] == 'target_user_details_added' &&
+          message['success']) {
+        addUser(
+            message['details']['targetUserId'],
+            message['details']['targetUserMobile'],
             message['details']['targetUserName']);
       }
 
       if (message['type'] == 'receiveNotification' &&
           message['toUser'] == currentUserId) {
-        Get.to(() => const AcceptNotificationPage());
+        Get.to(() => AcceptNotificationPage(fromUser: message['fromUser']));
       }
     });
   }

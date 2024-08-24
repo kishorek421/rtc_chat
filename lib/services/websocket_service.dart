@@ -75,9 +75,9 @@ class WebSocketService extends GetxService {
     });
   }
 
-  void _acceptOffer(String fromUser) {
+  void acceptOffer(String fromUser) {
     _channel?.sink.add(json.encode({
-      'action': 'acceptOffer',
+      'action': 'callAccepted',
       'fromUser': fromUser,
       'toUser': currentUserId,
     }));
