@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rtc/controllers/chat_controller.dart';
+import 'package:rtc/enums/chat_status.dart';
 
 class ChatPage extends StatefulWidget {
   final String targetUserId;
@@ -23,7 +24,7 @@ class _ChatPageState extends State<ChatPage> {
     // Initiate the connection when the screen is opened
     chatController.fetchCurrentUserDetails().then((value) {
       log("currentUserId => $value");
-      chatController.createConnection(value, widget.targetUserId);
+      // chatController.createConnection(value, widget.targetUserId);
     });
   }
 
@@ -32,17 +33,17 @@ class _ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: AppBar(
         title: Obx(() {
-          return Text(chatController.isCallActive.value
-              ? chatController.isCallConnected.value
+          return Text(chatController.chatStatus.value == ChatStatus.calling
+              ? 'Calling ${widget.targetUserId}...'
+              : chatController.chatStatus.value == ChatStatus.connected
                   ? 'Chat with ${widget.targetUserId}'
-                  : 'Calling ${widget.targetUserId}...'
-              : 'Disconnected');
+                  : 'Disconnected');
         }),
       ),
       body: Obx(() {
-        if (!chatController.isCallActive.value) {
+        if (chatController.chatStatus.value == ChatStatus.calling) {
           return _buildCallingUI();
-        } else if (chatController.isCallConnected.value) {
+        } else if (chatController.chatStatus.value == ChatStatus.connected) {
           return _buildChatUI();
         } else {
           return _buildDisconnectedUI();
@@ -92,20 +93,20 @@ class _ChatPageState extends State<ChatPage> {
   Widget _buildChatUI() {
     return Column(
       children: [
-        Expanded(
-          child: Obx(() {
-            return ListView(
-              children: [
-                Text('SDP: ${chatController.sdp.value}'),
-                const Text('ICE Candidates:'),
-                for (var candidate in chatController.iceCandidates)
-                  Text(candidate.candidate ?? ''),
-                if (chatController.isCallActive.value)
-                  Text('Call in progress with ${widget.targetUserId}...'),
-              ],
-            );
-          }),
-        ),
+        // Expanded(
+        //   child: Obx(() {
+        //     return ListView(
+        //       children: [
+        //         Text('SDP: ${chatController.sdp.value}'),
+        //         const Text('ICE Candidates:'),
+        //         for (var candidate in chatController.iceCandidates)
+        //           Text(candidate.candidate ?? ''),
+        //         if (chatController.chatStatus.value == ChatStatus.calling)
+        //           Text('Call in progress with ${widget.targetUserId}...'),
+        //       ],
+        //     );
+        //   }),
+        // ),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(

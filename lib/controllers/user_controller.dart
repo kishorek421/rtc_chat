@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
-import 'package:rtc/pages/accept_notification_page.dart';
 import 'package:rtc/pages/chat_page.dart';
 import 'package:rtc/services/websocket_service.dart';
 import 'package:rtc/utils/db_helper.dart';
@@ -54,14 +53,13 @@ class UserController extends GetxController {
             message['details']['targetUserName']);
       }
 
-      if (message['type'] == 'receiveNotification' &&
-          message['toUser'] == currentUserId) {
-        Get.to(() => AcceptNotificationPage(fromUser: message['fromUser']));
-      }
+      // if (message['type'] == 'receiveNotification' &&
+      //     message['toUser'] == currentUserId) {
+      //   Get.to(() => AcceptNotificationPage(fromUser: message['fromUser']));
+      // }
 
       if (message['type'] == 'callAccepted' &&
           message['fromUser'] == currentUserId) {
-
         Get.to(
             () => ChatPage(targetUserId: message['toUser']?.toString() ?? ""));
       }

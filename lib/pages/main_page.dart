@@ -38,8 +38,8 @@ class MainPage extends StatelessWidget {
                     title: Text(user['name']),
                     subtitle: Text(user['mobile']),
                     onTap: () {
-                      WebSocketService().sendNotification(user['userId']?.toString() ?? "");
-                      // Get.to(() => ChatPage(targetUserId: user['userId']?.toString() ?? ""));
+                      // WebSocketService().sendNotification(user['userId']?.toString() ?? "");
+                      Get.to(() => ChatPage(targetUserId: user['userId']?.toString() ?? ""));
                     },
                   );
                 },

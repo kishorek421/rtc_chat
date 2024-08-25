@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
+import 'package:rtc/enums/chat_status.dart';
 import 'package:rtc/services/websocket_service.dart';
 
 class ChatController extends GetxController {
@@ -17,11 +18,10 @@ class ChatController extends GetxController {
 
   var sdp = ''.obs;
   var iceCandidates = <RTCIceCandidate>[].obs;
-  var isCallActive = false.obs;
   var currentUserId = "";
   var targetUserId = "";
 
-  var isCallConnected = false.obs;
+  var chatStatus = ChatStatus.calling.obs;
 
   @override
   void onInit() {
@@ -55,13 +55,13 @@ class ChatController extends GetxController {
 
 
   // This method is invoked when the user picks up the call
-  void onCallConnected(String currentUserId, String targetUserId) async {
-    isCallConnected.value = true;
+  void callNotify(String currentUserId, String targetUserId) async {
+    chatStatus.value = ChatStatus.connected;
     final DateTime connectedTime = DateTime.now();
 
     // Update signaling server with the call connected status
     webSocketService.send({
-      'type': 'call_connected',
+      'type': 'call_notify',
       'currentUserId': currentUserId,
       'targetUserId': targetUserId,
       'connectedTime': connectedTime.toIso8601String(),
@@ -89,8 +89,8 @@ class ChatController extends GetxController {
   void _handleTimeout(String targetUserId) async {
     await Future.delayed(const Duration(seconds: 20));
 
-    if (!isCallConnected.value && isCallActive.value) {
-      isCallActive.value = false;
+    if (chatStatus.value == ChatStatus.calling) {
+      // isCallActive.value = false;
       // _showNotification(targetUserId, 'Missed call',
       //     'You missed a connection from $targetUserId.');
 
@@ -123,9 +123,9 @@ class ChatController extends GetxController {
       // Handle missed call
       _handleTimeout(targetUserId);
         break;
-      case 'call_connected':
+      case 'call_accepted':
       // Handle call connected
-      onCallConnected(currentUserId, targetUserId);
+      // onCallConnected(currentUserId, targetUserId);
         break;
       case 'call_disconnected':
       // Handle call disconnected
@@ -137,7 +137,6 @@ class ChatController extends GetxController {
 
   Future<void> createConnection(
       String currentUserId, String targetUserId) async {
-    isCallActive.value = true;
     // _showNotification(
     //     targetUserId, 'Incoming call', 'You have a connection request.');
 
@@ -229,7 +228,7 @@ class ChatController extends GetxController {
 // Override the onClose method to handle disconnection
   @override
   void onClose() {
-    if (isCallActive.value && isCallConnected.value) {
+    if (chatStatus.value == ChatStatus.connected) {
       onCallDisconnected(currentUserId, targetUserId);
     }
     peerConnection?.close();
@@ -300,7 +299,7 @@ class ChatController extends GetxController {
 
   // Handle call cancellation
   void _onCallCanceled(Map<String, dynamic> message) {
-    isCallActive.value = false;
+    // isCallActive.value = false;
     Get.snackbar('Call Canceled', 'The call was canceled by the other user.');
   }
 }
