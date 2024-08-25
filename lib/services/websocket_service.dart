@@ -103,7 +103,7 @@ class WebSocketService extends GetxService {
     final userId = await secureStorage.read(key: "userId");
     log("userId -> $userId");
     send({
-      'type': 'status_update',
+      'type': 'change_user_status',
       'userId': userId,
       'status': status,
     });
