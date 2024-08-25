@@ -102,11 +102,13 @@ class WebSocketService extends GetxService {
   void sendStatusUpdate(String status) async {
     final userId = await secureStorage.read(key: "userId");
     log("userId -> $userId");
-    send({
-      'type': 'change_user_status',
-      'userId': userId,
-      'status': status,
-    });
+    if (userId != null) {
+      send({
+        'type': 'change_user_status',
+        'userId': userId,
+        'status': status,
+      });
+    }
   }
 
   // Close the WebSocket connection and update status to offline
