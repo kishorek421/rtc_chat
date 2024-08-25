@@ -1,3 +1,3 @@
 enum ChatStatus {
-  calling, connected, disconnected
+  calling, ringing, connected, disconnected
 }

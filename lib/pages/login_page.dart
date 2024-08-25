@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:rtc/controllers/login_controller.dart';
-import 'package:rtc/enums/login_status.dart';
 
 class LoginPage extends StatelessWidget {
   final LoginController loginController = Get.put(LoginController());
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
 
+  LoginPage({super.key});
+
   @override
   Widget build(BuildContext context) {
-    // Redirect to home if already authenticated
-    // if (loginController.loginStatus.value == LoginStatus.authenticated) {
-    //   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     Get.offAllNamed('/home');
-    //   });
-    // }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Login'),

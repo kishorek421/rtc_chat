@@ -1,135 +1,74 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rtc/controllers/chat_controller.dart';
 import 'package:rtc/enums/chat_status.dart';
+import 'package:rtc/enums/current_user_type.dart';
 
-class ChatPage extends StatefulWidget {
+class ChatPage extends GetView<ChatController> {
   final String targetUserId;
+  final String targetUserMobile;
+  final CurrentUserType currentUserType;
 
-  const ChatPage({super.key, required this.targetUserId});
+  ChatPage({
+    super.key,
+    required this.targetUserId,
+    required this.targetUserMobile,
+    required this.currentUserType,
+  }) {
+    Get.put(ChatController());
 
-  @override
-  State<ChatPage> createState() => _ChatPageState();
-}
-
-class _ChatPageState extends State<ChatPage> {
-  final ChatController chatController = Get.put(ChatController());
-
-  @override
-  void initState() {
-    super.initState();
-    chatController.targetUserId = widget.targetUserId;
-    // Initiate the connection when the screen is opened
-    chatController.fetchCurrentUserDetails().then((value) {
-      log("currentUserId => $value");
-      // chatController.createConnection(value, widget.targetUserId);
-    });
+    if (currentUserType == CurrentUserType.callee) {
+      controller.chatStatus.value = ChatStatus.ringing;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Obx(() {
-          return Text(chatController.chatStatus.value == ChatStatus.calling
-              ? 'Calling ${widget.targetUserId}...'
-              : chatController.chatStatus.value == ChatStatus.connected
-                  ? 'Chat with ${widget.targetUserId}'
-                  : 'Disconnected');
-        }),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(targetUserMobile),
+        ),
+        body: _buildUI() ??
+            const Center(
+              child: Text("Please try again"),
+            ),
       ),
-      body: Obx(() {
-        if (chatController.chatStatus.value == ChatStatus.calling) {
-          return _buildCallingUI();
-        } else if (chatController.chatStatus.value == ChatStatus.connected) {
-          return _buildChatUI();
-        } else {
-          return _buildDisconnectedUI();
-        }
-      }),
     );
+  }
+
+  Widget? _buildUI() {
+    switch (controller.chatStatus.value) {
+      case ChatStatus.calling:
+        return _buildCallingUI();
+      case ChatStatus.ringing:
+        return _buildRingingUI();
+      case ChatStatus.connected:
+        return _buildChatUI();
+      default:
+        return null;
+    }
   }
 
   Widget _buildCallingUI() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircularProgressIndicator(),
-          const SizedBox(height: 20),
-          Text('Waiting for ${widget.targetUserId} to answer...'),
-          ElevatedButton(
-            onPressed: () {
-              chatController.cancelCall(
-                  chatController.currentUserId, widget.targetUserId);
-              Get.back();
-            },
-            child: const Text('Cancel Call'),
-          ),
-        ],
+    return SizedBox(
+      height: double.infinity,
+      child: Center(
+        child: Text("Calling $targetUserMobile..."),
       ),
     );
   }
 
-  Widget _buildDisconnectedUI() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('The call has been disconnected.'),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-            },
-            child: const Text('Back to Main Page'),
-          ),
-        ],
+  Widget _buildRingingUI() {
+    return SizedBox(
+      height: double.infinity,
+      child: Center(
+        child: Text("Getting call from $targetUserMobile..."),
       ),
     );
   }
 
   Widget _buildChatUI() {
-    return Column(
-      children: [
-        // Expanded(
-        //   child: Obx(() {
-        //     return ListView(
-        //       children: [
-        //         Text('SDP: ${chatController.sdp.value}'),
-        //         const Text('ICE Candidates:'),
-        //         for (var candidate in chatController.iceCandidates)
-        //           Text(candidate.candidate ?? ''),
-        //         if (chatController.chatStatus.value == ChatStatus.calling)
-        //           Text('Call in progress with ${widget.targetUserId}...'),
-        //       ],
-        //     );
-        //   }),
-        // ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  decoration:
-                      const InputDecoration(hintText: 'Type your message'),
-                  onSubmitted: (text) {
-                    chatController.sendMessage(text);
-                  },
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.send),
-                onPressed: () {
-                  // You can implement any additional logic if needed when the send button is pressed
-                },
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
+    return Text("Chat UI");
   }
 }

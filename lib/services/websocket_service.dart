@@ -12,7 +12,8 @@ class WebSocketService extends GetxService {
   late WebSocketChannel? _channel;
   bool isConnected = false;
   void Function(Map<String, dynamic>)? onMessageCallback;
-  final String url = 'ws://106.51.106.43';
+  // final String url = 'ws://106.51.106.43';
+  final String url = 'ws://192.0.0.2:3000';
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   var currentUserId = "";

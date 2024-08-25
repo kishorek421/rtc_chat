@@ -1,0 +1,3 @@
+enum CurrentUserType {
+  caller, callee
+}

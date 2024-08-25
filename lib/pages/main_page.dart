@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:rtc/enums/current_user_type.dart';
 import 'package:rtc/pages/add_user_page.dart';
-import 'package:rtc/pages/chat_page.dart';
 import 'package:rtc/controllers/user_controller.dart';
-import 'package:rtc/services/websocket_service.dart';
+import 'package:rtc/pages/chat_page.dart';
 
-class MainPage extends StatelessWidget {
-  final UserController userController = Get.put(UserController());
+class MainPage extends GetView<UserController> {
+  MainPage({super.key}) {
+    Get.put(UserController());
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Obx(() {
-          return Text(userController.currentUserMobileNumber.value.isEmpty
+          return Text(controller.currentUserMobileNumber.value.isEmpty
               ? "Hi User"
-              : userController.currentUserMobileNumber.value);
+              : controller.currentUserMobileNumber.value);
         }),
       ),
       body: Obx(() {
-        return userController.users.isEmpty
+        return controller.users.isEmpty
             ? const SizedBox(
                 height: double.infinity,
                 child: Center(
@@ -31,15 +33,19 @@ class MainPage extends StatelessWidget {
               )
             : ListView.builder(
                 shrinkWrap: true,
-                itemCount: userController.users.length,
+                itemCount: controller.users.length,
                 itemBuilder: (context, index) {
-                  var user = userController.users[index];
+                  var user = controller.users[index];
                   return ListTile(
                     title: Text(user['name']),
                     subtitle: Text(user['mobile']),
                     onTap: () {
                       // WebSocketService().sendNotification(user['userId']?.toString() ?? "");
-                      Get.to(() => ChatPage(targetUserId: user['userId']?.toString() ?? ""));
+                      Get.to(() => ChatPage(
+                            targetUserId: user['userId']?.toString() ?? "",
+                            targetUserMobile: user['mobile'] ?? "",
+                            currentUserType: CurrentUserType.caller,
+                          ));
                     },
                   );
                 },
@@ -54,38 +60,3 @@ class MainPage extends StatelessWidget {
     );
   }
 }
-
-/*class ConnectionPage extends StatelessWidget {
-  final int userId;
-  final String userName;
-
-  ConnectionPage(this.userId, this.userName);
-
-  @override
-  Widget build(BuildContext context) {
-    final UserController userController = Get.find();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('$userName\'s Connections'),
-      ),
-      body: Obx(() {
-        return ListView.builder(
-          itemCount: userController.connections.length,
-          itemBuilder: (context, index) {
-            var connection = userController.connections[index];
-            return ListTile(
-              title: Text(connection['targetName']),
-              subtitle: Text(connection['targetMobile']),
-            );
-          },
-        );
-      }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Get.to(() => AddConnectionPage(userId));
-        },
-        child: Icon(Icons.add),
-      ),
-    );
-  }
-}*/

@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rtc/controllers/user_controller.dart';
 
-class AddUserPage extends StatelessWidget {
-  final UserController userController = Get.find();
+class AddUserPage extends GetView<UserController> {
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
 
@@ -31,9 +30,9 @@ class AddUserPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // userController.addUser(mobileController.text, nameController.text);
-                userController.webSocketService.send({
-                  'type': 'add_target_user_details',
-                  'currentUserId': userController.currentUserId,
+                controller.webSocketService.send({
+                  'type': 'add_user_contact',
+                  'currentUserId': controller.currentUserId,
                   'targetUserName': nameController.text,
                   'targetUserMobile': mobileController.text,
                 });
