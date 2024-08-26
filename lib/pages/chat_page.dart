@@ -19,6 +19,10 @@ class ChatPage extends GetView<ChatController> {
   }) {
     Get.put(ChatController());
 
+    if (controller.callId.isEmpty) {
+      controller.callId = callId;
+    }
+
     controller.fetchCurrentUserId();
 
     if (currentUserType == CurrentUserType.callee) {

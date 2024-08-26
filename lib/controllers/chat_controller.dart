@@ -10,13 +10,14 @@ import 'package:rtc/enums/chat_status.dart';
 class ChatController extends CommonController {
   var currentUserId = "";
 
+  var callId = "";
+
   final chatStatus = ChatStatus.calling.obs;
 
   RTCPeerConnection? peerConnection;
   RTCDataChannel? dataChannel;
 
-  @override
-  onInit() async {
+  initiatePeer(String callerId, String calleeId,) async {
     final configuration = {
       'iceServers': [
         {'urls': 'stun:stun.l.google.com:19302'}
@@ -25,9 +26,43 @@ class ChatController extends CommonController {
 
     peerConnection = await createPeerConnection(configuration);
 
-    super.onInit();
-  }
+    peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
+      if (chatStatus.value == ChatStatus.calling) {
+        webSocketService.send({
+          'type': 'ice',
+          'calleeId': calleeId,
+          'callerId': currentUserId,
+          'callId': callId,
+          // 'ice': json.encode(candidate.toMap()),
+          'ice': candidate.toMap(),
+          'iceUser': 'caller',
+        });
+      } else {
+        webSocketService.send({
+          'type': 'ice',
+          'calleeId': currentUserId,
+          'callerId': callerId,
+          'callId': callId,
+          // 'ice': json.encode(candidate.toMap()),
+          'ice': candidate.toMap(),
+          'iceUser': 'callee',
+        });
+      }
+    };
 
+    peerConnection!.onDataChannel = (RTCDataChannel channel) {
+      dataChannel = channel;
+      chatStatus.value = ChatStatus.connected;
+      log("Data channel is open");
+    };
+
+    final dataChannelConfig = RTCDataChannelInit()
+      ..ordered = true
+      ..maxRetransmits = 30;
+
+    dataChannel =
+        await peerConnection!.createDataChannel('chat', dataChannelConfig);
+  }
   // var sdp = ''.obs;
   // var iceCandidates = <RTCIceCandidate>[].obs;
 
@@ -59,43 +94,6 @@ class ChatController extends CommonController {
 
   @override
   shareOffer(callDetails) async {
-    peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
-      if (chatStatus.value == ChatStatus.calling) {
-        webSocketService.send({
-          'type': 'ice',
-          'calleeId': callDetails['calleeId'],
-          'callerId': currentUserId,
-          'callId': callDetails['callId'],
-          // 'ice': json.encode(candidate.toMap()),
-          'ice': candidate.toMap(),
-          'iceUser': 'caller',
-        });
-      } else {
-        webSocketService.send({
-          'type': 'ice',
-          'calleeId': currentUserId,
-          'callerId': callDetails['callerId'],
-          'callId': callDetails['callId'],
-          // 'ice': json.encode(candidate.toMap()),
-          'ice': candidate.toMap(),
-          'iceUser': 'callee',
-        });
-      }
-    };
-
-    peerConnection!.onDataChannel = (RTCDataChannel channel) {
-      dataChannel = channel;
-      chatStatus.value = ChatStatus.connected;
-      log("Data channel is open");
-    };
-
-    final dataChannelConfig = RTCDataChannelInit()
-      ..ordered = true
-      ..maxRetransmits = 30;
-
-    dataChannel =
-        await peerConnection!.createDataChannel('chat', dataChannelConfig);
-
     final offer = await peerConnection!.createOffer();
     await peerConnection!.setLocalDescription(offer);
 
@@ -153,5 +151,10 @@ class ChatController extends CommonController {
   @override
   void onAnswerReceived(Map<String, dynamic> data) async {
     await setRemoteDescription(data);
+  }
+
+  @override
+  void notifyCallInitiated(data) {
+    callId = data['callId'] ?? "";
   }
 }

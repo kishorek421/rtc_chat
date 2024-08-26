@@ -51,6 +51,12 @@ abstract class CommonController extends GetxController {
               data['details']['targetUserName']);
         }
         break;
+      case "call_initiated":
+        log("Incoming Call");
+        if (data['success']) {
+          notifyCallInitiated(data);
+        }
+        break;
       case "incoming_call":
         log("Incoming Call");
         if (data['success']) {
@@ -97,6 +103,8 @@ abstract class CommonController extends GetxController {
     fetchUsers();
   }
 
+  void notifyCallInitiated(data) {}
+
   void fetchUsers() {}
 
   void ringUser(userDetails) {}
@@ -105,7 +113,7 @@ abstract class CommonController extends GetxController {
 
   void addIceCandidate(RTCIceCandidate candidate) {}
 
-  void onOfferReceived( Map<String, dynamic> data) async {}
+  void onOfferReceived(Map<String, dynamic> data) async {}
 
   void onAnswerReceived(Map<String, dynamic> data) async {}
 }
