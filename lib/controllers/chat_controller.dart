@@ -18,8 +18,9 @@ class ChatController extends CommonController {
   RTCPeerConnection? peerConnection;
   RTCDataChannel? dataChannel;
 
-  initiatePeer(
-  String callId) async {
+  final messages = [].obs;
+
+  initiatePeer(String callId) async {
     if (currentUserId.isEmpty) {
       await fetchCurrentUserId();
     }
@@ -60,6 +61,9 @@ class ChatController extends CommonController {
       dataChannel = channel;
       chatStatus.value = ChatStatus.connected;
       log("Data channel is open");
+      dataChannel!.onMessage = (RTCDataChannelMessage message) {
+        messages.add(message.text);
+      };
     };
 
     final dataChannelConfig = RTCDataChannelInit()
@@ -162,7 +166,11 @@ class ChatController extends CommonController {
 
   @override
   void notifyCallInitiated(data) {
-    callId = data['callId'] ?? "";
-    initiatePeer(data['callId'] ?? "");
+    callId = data['details']['callId'] ?? "";
+    initiatePeer(data['details']['callId'] ?? "");
+  }
+
+  void sendMessage(String message) {
+    dataChannel!.send(RTCDataChannelMessage(message));
   }
 }

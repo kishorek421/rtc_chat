@@ -9,6 +9,7 @@ class ChatPage extends GetView<ChatController> {
   final String targetUserId;
   final String targetUserMobile;
   final CurrentUserType currentUserType;
+  final TextEditingController _textController = TextEditingController();
 
   ChatPage({
     super.key,
@@ -40,10 +41,12 @@ class ChatPage extends GetView<ChatController> {
         appBar: AppBar(
           title: Text(targetUserMobile),
         ),
-        body: _buildUI() ??
-            const Center(
-              child: Text("Please try again"),
-            ),
+        body: Obx(() {
+          return _buildUI() ??
+              const Center(
+                child: Text("Please try again"),
+              );
+        }),
       ),
     );
   }
@@ -94,6 +97,38 @@ class ChatPage extends GetView<ChatController> {
   }
 
   Widget _buildChatUI() {
-    return const Text("Chat UI");
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: controller.messages.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(controller.messages[index]),
+              );
+            },
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: TextField(
+                  controller: _textController,
+                ),
+              ),
+              IconButton(
+                icon: Icon(Icons.send),
+                onPressed: () {
+                  controller.sendMessage(_textController.text);
+                  _textController.clear();
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
