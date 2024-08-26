@@ -16,6 +16,19 @@ class ChatController extends CommonController {
   RTCPeerConnection? peerConnection;
   RTCDataChannel? dataChannel;
 
+  @override
+  onInit() async {
+    final configuration = {
+      'iceServers': [
+        {'urls': 'stun:stun.l.google.com:19302'}
+      ]
+    };
+
+    peerConnection = await createPeerConnection(configuration);
+
+    super.onInit();
+  }
+
   // var sdp = ''.obs;
   // var iceCandidates = <RTCIceCandidate>[].obs;
 
@@ -47,13 +60,6 @@ class ChatController extends CommonController {
 
   @override
   shareOffer(callDetails) async {
-    final configuration = {
-      'iceServers': [
-        {'urls': 'stun:stun.l.google.com:19302'}
-      ]
-    };
-
-    peerConnection = await createPeerConnection(configuration);
 
     peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
       webSocketService.send({
@@ -98,7 +104,8 @@ class ChatController extends CommonController {
   }
 
   Future<void> setRemoteDescription(Map<String, dynamic> data) async {
-    final description = RTCSessionDescription(data['sdp']['sdp'], data['type']);
+    var sdp = json.decode(data['sdp']);
+    final description = RTCSessionDescription(sdp['sdp'], data['type']);
     await peerConnection!.setRemoteDescription(description);
   }
 

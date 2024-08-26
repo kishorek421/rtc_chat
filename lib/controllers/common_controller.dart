@@ -65,12 +65,12 @@ abstract class CommonController extends GetxController {
         break;
       case "sdp_offer":
         if (data['success']) {
-          onOfferReceived(json.decode(data['sdp']));
+          onOfferReceived(data);
         }
         break;
       case "sdp_answer":
         if (data['success']) {
-          onAnswerReceived(json.decode(data['sdp']));
+          onAnswerReceived(data);
         }
         break;
       case "ice":
