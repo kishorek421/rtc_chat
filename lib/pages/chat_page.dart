@@ -65,12 +65,26 @@ class ChatPage extends GetView<ChatController> {
     return SizedBox(
       height: double.infinity,
       child: Center(
-        child: Text("Getting call from $targetUserMobile..."),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Getting call from $targetUserMobile..."),
+            const SizedBox(
+              height: 10,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                controller.acceptOffer(targetUserId, controller.currentUserId);
+              },
+              child: const Text("Accept"),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildChatUI() {
-    return Text("Chat UI");
+    return const Text("Chat UI");
   }
 }

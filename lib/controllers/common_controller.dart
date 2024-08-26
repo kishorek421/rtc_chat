@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
 import 'package:rtc/services/websocket_service.dart';
 import 'package:rtc/utils/db_helper.dart';
@@ -54,6 +55,26 @@ abstract class CommonController extends GetxController {
           ringUser(data['details']);
         }
         break;
+      case "sdp_offer":
+        if (data['success']) {
+          onOfferReceived(data);
+        }
+        break;
+      case "sdp_answer":
+        if (data['success']) {
+          onAnswerReceived(data);
+        }
+        break;
+      case "ice":
+        if (data['success']) {
+          RTCIceCandidate candidate = RTCIceCandidate(
+            data['ice']['candidate'],
+            data['ice']['sdpMid'],
+            data['ice']['sdpMLineIndex'],
+          );
+          addIceCandidate(candidate);
+        }
+        break;
     }
   }
 
@@ -65,5 +86,13 @@ abstract class CommonController extends GetxController {
 
   void fetchUsers() {}
 
-  void ringUser(user) {}
+  void ringUser(userDetails) {}
+
+  shareOffer(callDetails) async {}
+
+  void addIceCandidate(RTCIceCandidate candidate) {}
+
+  void onOfferReceived( Map<String, dynamic> data) async {}
+
+  void onAnswerReceived(Map<String, dynamic> data) async {}
 }

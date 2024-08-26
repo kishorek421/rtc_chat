@@ -16,7 +16,7 @@ class WebSocketService extends GetxService {
   // final String url = 'ws://192.0.0.2:3000';
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
-  var currentUserId = "";
+  // var currentUserId = "";
 
   BuildContext? context;
 
@@ -29,9 +29,9 @@ class WebSocketService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    secureStorage.read(key: "userId").then((value) {
-      currentUserId = value ?? "";
-    });
+    // secureStorage.read(key: "userId").then((value) {
+    //   currentUserId = value ?? "";
+    // });
     connect();
   }
 
@@ -65,23 +65,6 @@ class WebSocketService extends GetxService {
 
     // Update status to online
     sendStatusUpdate('online');
-  }
-
-  // Send notification when a user is clicked
-  void sendNotification(String toUserId) {
-    send({
-      'type': 'sendNotification',
-      'toUser': toUserId,
-      'fromUser': currentUserId,
-    });
-  }
-
-  void acceptOffer(String fromUser) {
-    send({
-      'type': 'callAccepted',
-      'fromUser': fromUser,
-      'toUser': currentUserId,
-    });
   }
 
   // Register a callback to handle incoming messages

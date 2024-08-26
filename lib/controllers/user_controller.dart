@@ -30,10 +30,11 @@ class UserController extends CommonController {
   }
 
   @override
-  void ringUser(user) {
+  void ringUser(userDetails) {
+    log("ringing user with $userDetails");
     Get.to(() => ChatPage(
-      targetUserId: user['callerId']?.toString() ?? "",
-      targetUserMobile: user['callerMobile'] ?? "",
+      targetUserId: userDetails['callerId']?.toString() ?? "",
+      targetUserMobile: userDetails['callerMobile'] ?? "",
       currentUserType: CurrentUserType.callee,
     ));
   }
