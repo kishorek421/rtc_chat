@@ -63,13 +63,13 @@ abstract class CommonController extends GetxController {
           shareOffer(data);
         }
         break;
-      case "sdp_offer":
+      case "offer":
         log("received offer $data");
         if (data['success']) {
           onOfferReceived(data);
         }
         break;
-      case "sdp_answer":
+      case "answer":
         log("received answer $data");
         if (data['success']) {
           onAnswerReceived(data);
@@ -78,7 +78,8 @@ abstract class CommonController extends GetxController {
       case "ice":
         log("received ice $data");
         if (data['success']) {
-          var ice = json.decode(data['ice']);
+          // var ice = json.decode(data['ice']);
+          var ice = data['ice'];
           RTCIceCandidate candidate = RTCIceCandidate(
             ice['candidate'],
             ice['sdpMid'],

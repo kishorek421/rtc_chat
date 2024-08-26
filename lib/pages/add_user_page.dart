@@ -6,7 +6,9 @@ class AddUserPage extends GetView<UserController> {
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
 
-  AddUserPage({super.key});
+  AddUserPage({super.key}) {
+    controller.fetchCurrentUserId();
+  }
 
   @override
   Widget build(BuildContext context) {

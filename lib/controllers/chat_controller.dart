@@ -8,7 +8,6 @@ import 'package:rtc/controllers/common_controller.dart';
 import 'package:rtc/enums/chat_status.dart';
 
 class ChatController extends CommonController {
-
   var currentUserId = "";
 
   final chatStatus = ChatStatus.calling.obs;
@@ -60,14 +59,14 @@ class ChatController extends CommonController {
 
   @override
   shareOffer(callDetails) async {
-
     peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
       webSocketService.send({
         'type': 'ice',
         'calleeId': callDetails['calleeId'],
         'callerId': currentUserId,
         'callId': callDetails['callId'],
-        'ice': json.encode(candidate.toMap()),
+        // 'ice': json.encode(candidate.toMap()),
+        'ice': candidate.toMap(),
       });
     };
 
@@ -94,7 +93,8 @@ class ChatController extends CommonController {
       'calleeId': callDetails['calleeId'],
       'callerId': currentUserId,
       'callId': callDetails['callId'],
-      'sdp': json.encode(offer.toMap()),
+      // 'sdp': json.encode(offer.toMap()),
+      'sdp': offer.toMap(),
     });
   }
 
@@ -105,13 +105,15 @@ class ChatController extends CommonController {
   }
 
   Future<void> setRemoteDescription(Map<String, dynamic> data) async {
-    var sdp = json.decode(data['sdp']);
-    final description = RTCSessionDescription(sdp['sdp'], data['type']);
+    // var sdp = json.decode(data['sdp']);
+    var sdp = data['sdp'];
+    log("setting ${data['type']}");
+    final description = RTCSessionDescription(sdp['sdp'], sdp['type']);
     await peerConnection!.setRemoteDescription(description);
   }
 
   @override
-  void onOfferReceived( Map<String, dynamic> data) async {
+  void onOfferReceived(Map<String, dynamic> data) async {
     String callerId = data['callerId'];
     String callId = data['callId'];
 
@@ -120,10 +122,11 @@ class ChatController extends CommonController {
     await peerConnection!.setLocalDescription(answer);
 
     // Send answer back to the caller
-    _sendAnswer( callerId, callId, json.encode(answer.toMap()));
+    // _sendAnswer( callerId, callId, json.encode(answer.toMap()));
+    _sendAnswer(callerId, callId, answer.toMap());
   }
 
-  void _sendAnswer( String callerId, String callId, String sdp) {
+  void _sendAnswer(String callerId, String callId, String sdp) {
     webSocketService.send({
       'type': 'answer',
       'calleeId': currentUserId,
