@@ -64,16 +64,19 @@ abstract class CommonController extends GetxController {
         }
         break;
       case "sdp_offer":
+        log("received offer $data");
         if (data['success']) {
           onOfferReceived(data);
         }
         break;
       case "sdp_answer":
+        log("received answer $data");
         if (data['success']) {
           onAnswerReceived(data);
         }
         break;
       case "ice":
+        log("received ice $data");
         if (data['success']) {
           var ice = json.decode(data['ice']);
           RTCIceCandidate candidate = RTCIceCandidate(

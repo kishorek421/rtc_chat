@@ -100,6 +100,7 @@ class ChatController extends CommonController {
 
   @override
   void addIceCandidate(RTCIceCandidate candidate) {
+    log("adding ice");
     peerConnection!.addCandidate(candidate);
   }
 
