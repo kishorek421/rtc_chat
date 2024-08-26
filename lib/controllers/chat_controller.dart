@@ -60,7 +60,7 @@ class ChatController extends CommonController {
   @override
   shareOffer(callDetails) async {
     peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
-      if (chatStatus == ChatStatus.calling) {
+      if (chatStatus.value == ChatStatus.calling) {
         webSocketService.send({
           'type': 'ice',
           'calleeId': callDetails['calleeId'],
