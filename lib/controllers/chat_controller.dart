@@ -60,14 +60,27 @@ class ChatController extends CommonController {
   @override
   shareOffer(callDetails) async {
     peerConnection!.onIceCandidate = (RTCIceCandidate candidate) {
-      webSocketService.send({
-        'type': 'ice',
-        'calleeId': callDetails['calleeId'],
-        'callerId': currentUserId,
-        'callId': callDetails['callId'],
-        // 'ice': json.encode(candidate.toMap()),
-        'ice': candidate.toMap(),
-      });
+      if (chatStatus == ChatStatus.calling) {
+        webSocketService.send({
+          'type': 'ice',
+          'calleeId': callDetails['calleeId'],
+          'callerId': currentUserId,
+          'callId': callDetails['callId'],
+          // 'ice': json.encode(candidate.toMap()),
+          'ice': candidate.toMap(),
+          'iceUser': 'caller',
+        });
+      } else {
+        webSocketService.send({
+          'type': 'ice',
+          'calleeId': currentUserId,
+          'callerId': callDetails['callerId'],
+          'callId': callDetails['callId'],
+          // 'ice': json.encode(candidate.toMap()),
+          'ice': candidate.toMap(),
+          'iceUser': 'callee',
+        });
+      }
     };
 
     peerConnection!.onDataChannel = (RTCDataChannel channel) {
@@ -126,7 +139,7 @@ class ChatController extends CommonController {
     _sendAnswer(callerId, callId, answer.toMap());
   }
 
-  void _sendAnswer(String callerId, String callId, String sdp) {
+  void _sendAnswer(String callerId, String callId, Map<String, dynamic> sdp) {
     webSocketService.send({
       'type': 'answer',
       'calleeId': currentUserId,
