@@ -173,4 +173,11 @@ class ChatController extends CommonController {
   void sendMessage(String message) {
     dataChannel!.send(RTCDataChannelMessage(message));
   }
+
+  @override
+  void dispose() {
+    dataChannel?.close();
+    peerConnection?.close();
+    super.dispose();
+  }
 }
