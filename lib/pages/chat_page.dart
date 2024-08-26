@@ -5,12 +5,14 @@ import 'package:rtc/enums/chat_status.dart';
 import 'package:rtc/enums/current_user_type.dart';
 
 class ChatPage extends GetView<ChatController> {
+  final String callId;
   final String targetUserId;
   final String targetUserMobile;
   final CurrentUserType currentUserType;
 
   ChatPage({
     super.key,
+    required this.callId,
     required this.targetUserId,
     required this.targetUserMobile,
     required this.currentUserType,
@@ -74,7 +76,7 @@ class ChatPage extends GetView<ChatController> {
             ),
             ElevatedButton(
               onPressed: () {
-                controller.acceptOffer(targetUserId, controller.currentUserId);
+                controller.acceptOffer(callId, targetUserId);
               },
               child: const Text("Accept"),
             ),

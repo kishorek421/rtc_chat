@@ -36,11 +36,12 @@ class ChatController extends CommonController {
     });
   }
 
-  void acceptOffer(String targetUserId, String currentUserId) {
+  void acceptOffer(String callId, String targetUserId) {
     webSocketService.send({
       'type': 'accept_call',
-      'targetUserId': targetUserId,
-      'currentUserId': currentUserId,
+      'callId': callId,
+      'callerId': targetUserId,
+      'calleeId': currentUserId,
     });
   }
 

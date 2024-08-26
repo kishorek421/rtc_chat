@@ -42,6 +42,7 @@ class MainPage extends GetView<UserController> {
                     onTap: () {
                       // WebSocketService().sendNotification(user['userId']?.toString() ?? "");
                       Get.to(() => ChatPage(
+                        callId: "",
                             targetUserId: user['userId']?.toString() ?? "",
                             targetUserMobile: user['mobile'] ?? "",
                             currentUserType: CurrentUserType.caller,
