@@ -61,13 +61,14 @@ class ChatController extends CommonController {
         'calleeId': callDetails['calleeId'],
         'callerId': currentUserId,
         'callId': callDetails['callId'],
-        'ice': json.encode(candidate),
+        'ice': json.encode(candidate.toMap()),
       });
     };
 
     peerConnection!.onDataChannel = (RTCDataChannel channel) {
       dataChannel = channel;
       chatStatus.value = ChatStatus.connected;
+      log("Data channel is open");
     };
 
     final dataChannelConfig = RTCDataChannelInit()
@@ -87,7 +88,7 @@ class ChatController extends CommonController {
       'calleeId': callDetails['calleeId'],
       'callerId': currentUserId,
       'callId': callDetails['callId'],
-      'sdp': json.encode(offer.sdp),
+      'sdp': json.encode(offer.toMap()),
     });
   }
 
@@ -96,23 +97,22 @@ class ChatController extends CommonController {
     peerConnection!.addCandidate(candidate);
   }
 
-  Future<void> setRemoteDescription(String sdp) async {
-    final description = RTCSessionDescription(sdp, 'answer');
+  Future<void> setRemoteDescription(Map<String, dynamic> data) async {
+    final description = RTCSessionDescription(data['sdp']['sdp'], data['type']);
     await peerConnection!.setRemoteDescription(description);
   }
 
   @override
   void onOfferReceived( Map<String, dynamic> data) async {
-    String sdp = data['sdp'];
     String callerId = data['callerId'];
     String callId = data['callId'];
 
-    await setRemoteDescription(sdp);
+    await setRemoteDescription(data);
     final answer = await peerConnection!.createAnswer();
     await peerConnection!.setLocalDescription(answer);
 
     // Send answer back to the caller
-    _sendAnswer( callerId, callId, answer.sdp!);
+    _sendAnswer( callerId, callId, json.encode(answer.toMap()));
   }
 
   void _sendAnswer( String callerId, String callId, String sdp) {
@@ -128,7 +128,6 @@ class ChatController extends CommonController {
   // Handle incoming answer
   @override
   void onAnswerReceived(Map<String, dynamic> data) async {
-    String sdp = data['sdp'];
-    await setRemoteDescription(sdp);
+    await setRemoteDescription(data);
   }
 }

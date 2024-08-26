@@ -77,9 +77,9 @@ abstract class CommonController extends GetxController {
         if (data['success']) {
           var ice = json.decode(data['ice']);
           RTCIceCandidate candidate = RTCIceCandidate(
-            ice['ice']['candidate'],
-            ice['ice']['sdpMid'],
-            ice['ice']['sdpMLineIndex'],
+            ice['candidate'],
+            ice['sdpMid'],
+            ice['sdpMLineIndex'],
           );
           addIceCandidate(candidate);
         }
