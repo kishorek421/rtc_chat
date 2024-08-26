@@ -8,6 +8,8 @@ import 'package:rtc/pages/chat_page.dart';
 class UserController extends CommonController {
   var users = [].obs;
 
+  var currentUserId = "";
+
   @override
   void onInit() {
     super.onInit();
@@ -15,10 +17,14 @@ class UserController extends CommonController {
     fetchUsers();
   }
 
+  fetchCurrentUserId() async {
+    currentUserId = (await secureStorage.read(key: "userId")) ?? "";
+  }
+
   @override
   void fetchUsers() async {
     log("method calling");
-    var mobileNumber = await fetchCurrentUserDetails();
+    var mobileNumber = await fetchCurrentUserMobileNo();
     var result = await dbHelper.getUsers(mobileNumber);
     users.assignAll(result);
   }

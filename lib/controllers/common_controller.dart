@@ -6,7 +6,6 @@ import 'package:rtc/services/websocket_service.dart';
 import 'package:rtc/utils/db_helper.dart';
 
 abstract class CommonController extends GetxController {
-  var currentUserId = "";
   var currentUserMobileNumber = "".obs;
 
   WebSocketService webSocketService = WebSocketService();
@@ -19,27 +18,23 @@ abstract class CommonController extends GetxController {
   void onInit() {
     super.onInit();
 
-    fetchCurrentUserDetails();
+    fetchCurrentUserMobileNo();
   }
 
-  Future<String> fetchCurrentUserDetails() async {
-    currentUserId = (await secureStorage.read(key: "userId")) ?? "";
-    log("currentUserId -> $currentUserId");
-    _initializeWebSocket(currentUserId);
+  Future<String> fetchCurrentUserMobileNo() async {
+    _initializeWebSocket();
     var mobileNumber = (await secureStorage.read(key: 'mobile')) ?? "";
     currentUserMobileNumber.value = mobileNumber;
     return mobileNumber;
   }
 
   // Initialize the WebSocket connection
-  void _initializeWebSocket(String currentUserId) {
+  void _initializeWebSocket() {
     // Connect to WebSocket server
     webSocketService.connect();
 
     // Listen to WebSocket messages
     webSocketService.onMessage((message) async {
-      log("message $message");
-      log("currentUserId -> $currentUserId");
       _handleMessage(message);
     });
   }

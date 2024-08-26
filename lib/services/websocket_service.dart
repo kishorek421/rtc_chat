@@ -12,8 +12,8 @@ class WebSocketService extends GetxService {
   late WebSocketChannel? _channel;
   bool isConnected = false;
   void Function(Map<String, dynamic>)? onMessageCallback;
-  // final String url = 'ws://106.51.106.43';
-  final String url = 'ws://192.0.0.2:3000';
+  final String url = 'ws://106.51.106.43';
+  // final String url = 'ws://192.0.0.2:3000';
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   var currentUserId = "";
@@ -54,12 +54,12 @@ class WebSocketService extends GetxService {
           onMessageCallback!(data);
         }
       } catch (e) {
-        print('Error decoding WebSocket message: $e');
+        log('Error decoding WebSocket message: $e');
       }
     }, onError: (error) {
-      print('WebSocket error: $error');
+      log('WebSocket error: $error');
     }, onDone: () {
-      print('WebSocket connection closed');
+      log('WebSocket connection closed');
       isConnected = false;
     });
 
@@ -94,7 +94,7 @@ class WebSocketService extends GetxService {
     if (isConnected && _channel != null) {
       _channel!.sink.add(jsonEncode(data));
     } else {
-      print('WebSocket channel is not connected or already closed');
+      log('WebSocket channel is not connected or already closed');
     }
   }
 
