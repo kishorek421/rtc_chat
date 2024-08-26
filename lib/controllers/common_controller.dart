@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -64,20 +65,21 @@ abstract class CommonController extends GetxController {
         break;
       case "sdp_offer":
         if (data['success']) {
-          onOfferReceived(data);
+          onOfferReceived(json.decode(data['sdp']));
         }
         break;
       case "sdp_answer":
         if (data['success']) {
-          onAnswerReceived(data);
+          onAnswerReceived(json.decode(data['sdp']));
         }
         break;
       case "ice":
         if (data['success']) {
+          var ice = json.decode(data['ice']);
           RTCIceCandidate candidate = RTCIceCandidate(
-            data['ice']['candidate'],
-            data['ice']['sdpMid'],
-            data['ice']['sdpMLineIndex'],
+            ice['ice']['candidate'],
+            ice['ice']['sdpMid'],
+            ice['ice']['sdpMLineIndex'],
           );
           addIceCandidate(candidate);
         }
