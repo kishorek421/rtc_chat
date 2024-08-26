@@ -184,8 +184,6 @@ class ChatController extends CommonController {
     String callerId = data['callerId'];
     String callId = data['callId'];
 
-    await initiatePeer(callId);
-
     await setRemoteDescription(data);
     final answer = await peerConnection!.createAnswer();
     await peerConnection!.setLocalDescription(answer);
@@ -220,6 +218,4 @@ class ChatController extends CommonController {
   void sendMessage(String message) {
     dataChannel!.send(RTCDataChannelMessage(message));
   }
-
-
 }
