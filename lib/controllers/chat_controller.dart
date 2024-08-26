@@ -62,16 +62,16 @@ class ChatController extends CommonController {
       chatStatus.value = ChatStatus.connected;
       log("Data channel is open");
       dataChannel!.onMessage = (RTCDataChannelMessage message) {
+        log("message $message");
         messages.add(message.text);
       };
     };
 
-    final dataChannelConfig = RTCDataChannelInit()
-      ..ordered = true
-      ..maxRetransmits = 30;
-
-    dataChannel =
-        await peerConnection!.createDataChannel('chat', dataChannelConfig);
+    RTCDataChannelInit dataChannelDict = RTCDataChannelInit();
+    dataChannel = await peerConnection!.createDataChannel('dataChannel', dataChannelDict);
+    dataChannel!.onMessage = (RTCDataChannelMessage message) {
+        messages.add(message.text);
+    };
   }
 
   // var sdp = ''.obs;

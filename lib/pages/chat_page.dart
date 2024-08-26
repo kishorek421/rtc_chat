@@ -97,38 +97,40 @@ class ChatPage extends GetView<ChatController> {
   }
 
   Widget _buildChatUI() {
-    return Column(
-      children: [
-        Expanded(
-          child: ListView.builder(
-            itemCount: controller.messages.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(controller.messages[index]),
-              );
-            },
+    return Obx(() {
+      return Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: controller.messages.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(controller.messages[index]),
+                );
+              },
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: TextField(
-                  controller: _textController,
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: TextField(
+                    controller: _textController,
+                  ),
                 ),
-              ),
-              IconButton(
-                icon: Icon(Icons.send),
-                onPressed: () {
-                  controller.sendMessage(_textController.text);
-                  _textController.clear();
-                },
-              ),
-            ],
+                IconButton(
+                  icon: Icon(Icons.send),
+                  onPressed: () {
+                    controller.sendMessage(_textController.text);
+                    _textController.clear();
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 }
