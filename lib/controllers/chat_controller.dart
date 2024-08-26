@@ -19,7 +19,7 @@ class ChatController extends CommonController {
   RTCDataChannel? dataChannel;
 
   initiatePeer(
-  ) async {
+  String callId) async {
     if (currentUserId.isEmpty) {
       await fetchCurrentUserId();
     }
@@ -163,6 +163,6 @@ class ChatController extends CommonController {
   @override
   void notifyCallInitiated(data) {
     callId = data['callId'] ?? "";
-    initiatePeer();
+    initiatePeer(data['callId'] ?? "");
   }
 }
