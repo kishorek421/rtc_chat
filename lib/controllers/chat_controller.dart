@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'dart:developer';
+
 import 'package:get/get.dart';
 import 'package:rtc/controllers/common_controller.dart';
 import 'package:rtc/enums/chat_status.dart';
@@ -17,18 +19,16 @@ class ChatController extends CommonController {
   // var sdp = ''.obs;
   // var iceCandidates = <RTCIceCandidate>[].obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-
-    fetchCurrentUserId();
-  }
-
   fetchCurrentUserId() async {
     currentUserId = (await secureStorage.read(key: "userId")) ?? "";
+    log("fetchCurrentUserId :: currentUserId -> $currentUserId");
   }
 
-  contactUser(String targetUserId) {
+  contactUser(String targetUserId) async {
+    log("currentUserId -> $currentUserId");
+    if (currentUserId.isEmpty) {
+      await fetchCurrentUserId();
+    }
     webSocketService.send({
       'type': 'call_user',
       'callerId': currentUserId,

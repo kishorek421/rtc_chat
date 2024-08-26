@@ -51,8 +51,15 @@ abstract class CommonController extends GetxController {
         }
         break;
       case "incoming_call":
+        log("Incoming Call");
         if (data['success']) {
           ringUser(data['details']);
+        }
+        break;
+      case "call_accepted":
+        log("Call Accepted");
+        if (data['success']) {
+          shareOffer(data);
         }
         break;
       case "sdp_offer":
