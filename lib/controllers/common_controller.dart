@@ -94,6 +94,9 @@ abstract class CommonController extends GetxController {
           addIceCandidate(candidate);
         }
         break;
+      case "reconnect":
+        reconnect();
+        break;
     }
   }
 
@@ -102,6 +105,8 @@ abstract class CommonController extends GetxController {
     await dbHelper.addUser(userId, mobile, name);
     fetchUsers();
   }
+
+  void reconnect() {}
 
   void notifyCallInitiated(data) {}
 

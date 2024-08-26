@@ -28,7 +28,7 @@ class ChatPage extends GetView<ChatController> {
 
     if (currentUserType == CurrentUserType.callee) {
       controller.chatStatus.value = ChatStatus.ringing;
-      controller.initiatePeer(callId);
+      controller.isCaller = false;
     } else {
       controller.contactUser(targetUserId);
     }

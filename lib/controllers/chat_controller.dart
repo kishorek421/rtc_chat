@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'dart:developer';
 
@@ -18,7 +19,51 @@ class ChatController extends CommonController {
   RTCPeerConnection? peerConnection;
   RTCDataChannel? dataChannel;
 
+  var isCaller = true;
+
   final messages = [].obs;
+
+  // Monitor network changes
+  void monitorNetworkChanges() {
+    Connectivity().onConnectivityChanged.listen((result) {
+      if (result.isNotEmpty) {
+        if (!isCaller) {
+          webSocketService.send({
+            'type': 'reconnect',
+            'calleeId': currentUserId,
+            'callerId': targetUserId,
+            'callId': callId,
+          });
+        } else {
+          reconnect();
+        }
+      }
+    });
+  }
+
+  @override
+  reconnect() async {
+    if (peerConnection != null) {
+      peerConnection?.close();
+    }
+    if (dataChannel != null) {
+      dataChannel?.close();
+    }
+
+    await initiatePeer(callId);
+
+    if (isCaller) {
+      await shareOffer({
+        'calleeId': targetUserId,
+        'callId': callId
+      });
+    } else {
+      await shareOffer({
+        'calleeId': currentUserId,
+        'callId': callId
+      });
+    }
+  }
 
   initiatePeer(String callId) async {
     if (currentUserId.isEmpty) {
@@ -139,6 +184,8 @@ class ChatController extends CommonController {
     String callerId = data['callerId'];
     String callId = data['callId'];
 
+    await initiatePeer(callId);
+
     await setRemoteDescription(data);
     final answer = await peerConnection!.createAnswer();
     await peerConnection!.setLocalDescription(answer);
@@ -173,4 +220,6 @@ class ChatController extends CommonController {
   void sendMessage(String message) {
     dataChannel!.send(RTCDataChannelMessage(message));
   }
+
+
 }
