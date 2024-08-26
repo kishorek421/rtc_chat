@@ -9,6 +9,7 @@ import 'package:rtc/enums/chat_status.dart';
 
 class ChatController extends CommonController {
   var currentUserId = "";
+  var targetUserId = "";
 
   var callId = "";
 
@@ -17,7 +18,12 @@ class ChatController extends CommonController {
   RTCPeerConnection? peerConnection;
   RTCDataChannel? dataChannel;
 
-  initiatePeer(String callerId, String calleeId,) async {
+  initiatePeer(
+  ) async {
+    if (currentUserId.isEmpty) {
+      await fetchCurrentUserId();
+    }
+
     final configuration = {
       'iceServers': [
         {'urls': 'stun:stun.l.google.com:19302'}
@@ -30,7 +36,7 @@ class ChatController extends CommonController {
       if (chatStatus.value == ChatStatus.calling) {
         webSocketService.send({
           'type': 'ice',
-          'calleeId': calleeId,
+          'calleeId': targetUserId,
           'callerId': currentUserId,
           'callId': callId,
           // 'ice': json.encode(candidate.toMap()),
@@ -41,7 +47,7 @@ class ChatController extends CommonController {
         webSocketService.send({
           'type': 'ice',
           'calleeId': currentUserId,
-          'callerId': callerId,
+          'callerId': targetUserId,
           'callId': callId,
           // 'ice': json.encode(candidate.toMap()),
           'ice': candidate.toMap(),
@@ -63,6 +69,7 @@ class ChatController extends CommonController {
     dataChannel =
         await peerConnection!.createDataChannel('chat', dataChannelConfig);
   }
+
   // var sdp = ''.obs;
   // var iceCandidates = <RTCIceCandidate>[].obs;
 
@@ -156,5 +163,6 @@ class ChatController extends CommonController {
   @override
   void notifyCallInitiated(data) {
     callId = data['callId'] ?? "";
+    initiatePeer();
   }
 }

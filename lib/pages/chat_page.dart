@@ -19,14 +19,15 @@ class ChatPage extends GetView<ChatController> {
   }) {
     Get.put(ChatController());
 
+    controller.targetUserId = targetUserId;
+
     if (controller.callId.isEmpty) {
       controller.callId = callId;
     }
 
-    controller.fetchCurrentUserId();
-
     if (currentUserType == CurrentUserType.callee) {
       controller.chatStatus.value = ChatStatus.ringing;
+      controller.initiatePeer();
     } else {
       controller.contactUser(targetUserId);
     }
