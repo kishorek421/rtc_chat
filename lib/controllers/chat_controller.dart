@@ -25,9 +25,16 @@ class ChatController extends CommonController {
 
   // Monitor network changes
   void monitorNetworkChanges() {
+    log("Monitoring network changes");
     Connectivity().onConnectivityChanged.listen((result) {
       if (result.isNotEmpty) {
+        log("Network changed");
         if (!isCaller) {
+
+          if (!webSocketService.isConnected) {
+            initializeWebSocket();
+          }
+
           webSocketService.send({
             'type': 'reconnect',
             'calleeId': currentUserId,
@@ -110,6 +117,7 @@ class ChatController extends CommonController {
       dataChannel = channel;
       chatStatus.value = ChatStatus.connected;
       log("Data channel is open");
+      monitorNetworkChanges();
       dataChannel!.onMessage = (RTCDataChannelMessage message) {
         log("message $message");
         messages.add(message.text);
