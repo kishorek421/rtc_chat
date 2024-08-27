@@ -50,6 +50,10 @@ class ChatController extends CommonController {
       dataChannel?.close();
     }
 
+    if (!webSocketService.isConnected) {
+      initializeWebSocket();
+    }
+
     await initiatePeer(callId);
 
     if (isCaller) {

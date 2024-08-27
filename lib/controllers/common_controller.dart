@@ -24,19 +24,19 @@ abstract class CommonController extends GetxController {
   }
 
   Future<String> fetchCurrentUserMobileNo() async {
-    _initializeWebSocket();
+    initializeWebSocket();
     var mobileNumber = (await secureStorage.read(key: 'mobile')) ?? "";
     currentUserMobileNumber.value = mobileNumber;
     return mobileNumber;
   }
 
   // Initialize the WebSocket connection
-  void _initializeWebSocket() {
+  void initializeWebSocket() {
     // Connect to WebSocket server
     webSocketService.connect();
 
     // Listen to WebSocket messages
-    webSocketService.onMessage((message) async {
+    webSocketService.onMessage((message) {
       _handleMessage(message);
     });
   }
